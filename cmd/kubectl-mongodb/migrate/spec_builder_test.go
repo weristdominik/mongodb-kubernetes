@@ -827,7 +827,7 @@ func TestExtractAdditionalMongodConfig_TLSModeRequireNotIncluded(t *testing.T) {
 }
 
 func TestExtractAgentConfig_LogRotateFromEndpoint(t *testing.T) {
-	projectProcessConfigs := &ProjectProcessConfigs{
+	projectProcessConfigs := &ProjectConfigs{
 		SystemLogRotate: &automationconfig.AcLogRotate{
 			LogRotate: automationconfig.LogRotate{
 				TimeThresholdHrs: 24,
@@ -845,7 +845,7 @@ func TestExtractAgentConfig_LogRotateFromEndpoint(t *testing.T) {
 }
 
 func TestExtractAgentConfig_AuditLogRotateFromEndpoint(t *testing.T) {
-	projectProcessConfigs := &ProjectProcessConfigs{
+	projectProcessConfigs := &ProjectConfigs{
 		AuditLogRotate: &automationconfig.AcLogRotate{
 			LogRotate: automationconfig.LogRotate{
 				TimeThresholdHrs: 48,
@@ -869,7 +869,7 @@ func TestExtractAgentConfig_NilProcessConfigs(t *testing.T) {
 }
 
 func TestExtractAgentConfig_EmptyEndpointData(t *testing.T) {
-	projectProcessConfigs := &ProjectProcessConfigs{
+	projectProcessConfigs := &ProjectConfigs{
 		SystemLogRotate: &automationconfig.AcLogRotate{},
 		AuditLogRotate:  &automationconfig.AcLogRotate{},
 	}
@@ -882,7 +882,7 @@ func TestExtractAgentConfig_EmptyEndpointData(t *testing.T) {
 }
 
 func TestExtractAgentConfig_AgentLogRotateMatchesMongod(t *testing.T) {
-	projectProcessConfigs := &ProjectProcessConfigs{
+	projectProcessConfigs := &ProjectConfigs{
 		SystemLogRotate: &automationconfig.AcLogRotate{
 			LogRotate:       automationconfig.LogRotate{TimeThresholdHrs: 24},
 			SizeThresholdMB: 1000,
@@ -1029,7 +1029,7 @@ func TestExtractCustomRoles(t *testing.T) {
 		},
 	}
 
-	roles := extractCustomRoles(deployment)
+	roles := deployment.GetRoles()
 	require.Len(t, roles, 1)
 	assert.Equal(t, "appReadOnly", roles[0].Role)
 	assert.Equal(t, "myapp", roles[0].Db)
@@ -1043,8 +1043,8 @@ func TestExtractCustomRoles_Empty(t *testing.T) {
 	deployment := om.Deployment{
 		"roles": []interface{}{},
 	}
-	roles := extractCustomRoles(deployment)
-	assert.Nil(t, roles)
+	roles := deployment.GetRoles()
+	assert.Empty(t, roles)
 }
 
 func TestExtractAdditionalMongodConfig_MultiMember_SamePort_Included(t *testing.T) {
