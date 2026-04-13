@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+	k8svalidation "k8s.io/apimachinery/pkg/util/validation"
 
 	"github.com/mongodb/mongodb-kubernetes/controllers/om"
 	"github.com/mongodb/mongodb-kubernetes/controllers/operator/authentication"
@@ -117,7 +118,9 @@ func runGenerate(cmd *cobra.Command, _ []string) error {
 		defer func() { _ = f.Close() }()
 	}
 
-	_, _ = fmt.Fprint(out, resources)
+	if _, err := fmt.Fprint(out, resources); err != nil {
+		return fmt.Errorf("failed to write output: %w", err)
+	}
 	if outputFile != "" {
 		fmt.Fprintf(os.Stderr, "CRs written to %s\n", outputFile)
 	}
@@ -236,6 +239,9 @@ func ensureTLS(ac *om.AutomationConfig, opts *GenerateOptions, scanner *bufio.Sc
 	}
 	if prefix == "" {
 		return fmt.Errorf("security.certsSecretPrefix is required when TLS is enabled")
+	}
+	if len(k8svalidation.IsDNS1123Subdomain(prefix)) > 0 {
+		return fmt.Errorf("security.certsSecretPrefix %q is not a valid Kubernetes resource name", prefix)
 	}
 	opts.CertsSecretPrefix = prefix
 	return nil
