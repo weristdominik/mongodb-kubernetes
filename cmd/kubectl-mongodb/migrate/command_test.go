@@ -3,6 +3,7 @@ package migrate
 import (
 	"bufio"
 	"context"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -13,6 +14,10 @@ import (
 
 	"github.com/mongodb/mongodb-kubernetes/controllers/om"
 )
+
+func init() {
+	promptOutput = io.Discard
+}
 
 // TestParseUsersSecretsFile_EmptyPath returns nil without error.
 func TestParseUsersSecretsFile_EmptyPath(t *testing.T) {

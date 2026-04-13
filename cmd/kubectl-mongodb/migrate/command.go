@@ -22,6 +22,9 @@ import (
 
 const defaultNamespace = "default"
 
+// promptOutput is the writer used for interactive prompts. Override in tests to suppress stderr noise.
+var promptOutput io.Writer = os.Stderr
+
 type cliFlags struct {
 	configMapName          string
 	secretName             string
@@ -222,7 +225,7 @@ func generateExtraResources(ac *om.AutomationConfig, opts GenerateOptions) []cli
 func userKey(username, database string) string { return username + ":" + database }
 
 func promptLine(scanner *bufio.Scanner, prompt string) (string, error) {
-	fmt.Fprint(os.Stderr, prompt)
+	fmt.Fprint(promptOutput, prompt)
 	if !scanner.Scan() {
 		if err := scanner.Err(); err != nil {
 			return "", err
